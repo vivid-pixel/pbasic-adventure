@@ -14,11 +14,53 @@ Define.s user_input_raw = #Empty$
 ; User's response processed into numerical form (for AskYesNo() or AskDirection())
 Define.l user_choice = 0;
 
-; Some outpit of the program will require consistent indentation. Ex: Space(#INDENT_LENGTH)
+; Some output of the program will require consistent indentation. Ex: Space(#INDENT_LENGTH)
 #INDENT_LENGTH = 5
 
 ; The characters a user will always see when program is requesting their input
-#INDENT_PROMPT = ">> "
+#INDENT_INPUT = ">> "
+
+Declare PauseGame()
+Declare.l AskYesNo()
+Declare.s AskAnything(user_question.s)
+Declare.l AskDirection(north, south, east, west)
+
+Procedure GameLoop()
+  If OpenConsole()
+    EnableGraphicalConsole(#True)
+    Define.s welcome_message = "Welcome to my PBasic Adventure (Terminal Edition)"
+    Define.s dividing_line = LSet(#Empty$, Len(welcome_message), "#")
+    
+    PrintN(Space(#INDENT_LENGTH) + dividing_line)
+    PrintN(Space(#INDENT_LENGTH) + welcome_message)
+    PrintN(Space(#INDENT_LENGTH) + dividing_line)
+    
+    PrintN(Space(#INDENT_LENGTH) + "Nice to see you, " + UserName() + ".")
+    PauseGame()
+    
+    PrintN("You're walking in the forest, on a pleasant sunny day. You come across a fallen note " +
+           "with cursive writing. Who writes in cursive anymore?")
+    PauseGame()
+    
+    PrintN("Anyway, maybe we should read the note. Could be the coordinates to buried treasure, " +
+           "or perhaps something else equally likely.")
+    
+    user_choice = AskYesNo()
+    If (user_choice)
+      If (AskAnything("Are you aware that you selected Yes?") = "test")
+        Debug("User responded with 'test'")
+      EndIf
+      PauseGame()
+    ElseIf (Not user_choice)
+      user_choice = AskDirection(1, 1, 1, 1)
+      PrintN(Str(user_choice))
+      PauseGame()
+    EndIf
+    
+    CloseConsole()
+  EndIf
+EndProcedure
+
 
 Procedure PauseGame()
   PrintN("")
@@ -26,10 +68,11 @@ Procedure PauseGame()
   Input()
 EndProcedure
 
+
 Procedure.l AskYesNo()
   PrintN("")
   PrintN("Type 'yes' or 'no' to make a decision, when ready.")
-  Print(#INDENT_PROMPT)
+  Print(#INDENT_INPUT)
   
   ; use user_input_raw variable outside its original scope
   Shared user_input_raw
@@ -43,6 +86,7 @@ Procedure.l AskYesNo()
     AskYesNo()
   EndIf
 EndProcedure
+
 
 Procedure.l AskDirection(north, south, east, west)
   PrintN("")
@@ -79,7 +123,7 @@ Procedure.l AskDirection(north, south, east, west)
   Next
   
   PrintN("")
-  Print(#INDENT_PROMPT)
+  Print(#INDENT_INPUT)
   user_input_raw = LCase(Trim(Input()))
   
   If (user_input_raw = "north" Or user_input_raw = "n")
@@ -101,46 +145,13 @@ EndProcedure
 Procedure.s AskAnything(user_question.s)
   PrintN("")
   PrintN(user_question)
-  Print(#INDENT_PROMPT)
-  ProcedureReturn Input()
+  Print(#INDENT_INPUT)
+  Define.s user_reply = Input()
+  ProcedureReturn user_reply
 EndProcedure
 
-
-If OpenConsole()
-  EnableGraphicalConsole(#True)
-  Define.s welcome_message = "Welcome to my PBasic Adventure (Terminal Edition)"
-  Define.s dividing_line = LSet(#Empty$, Len(welcome_message), "#")
-  
-  PrintN(Space(#INDENT_LENGTH) + dividing_line)
-  PrintN(Space(#INDENT_LENGTH) + welcome_message)
-  PrintN(Space(#INDENT_LENGTH) + dividing_line)
-  
-  PrintN("Nice to see you, " + UserName() + ".")
-  PauseGame()
-  
-  PrintN("You're walking in the forest, on a pleasant sunny day. You come across a fallen note " +
-         "with cursive writing. Who writes in cursive anymore?")
-  PauseGame()
-  
-  PrintN("Anyway, maybe we should read the note. Could be the coordinates to buried treasure, " +
-         "or perhaps something else equally likely.")
-  
-  user_choice = AskYesNo()
-  If (user_choice)
-    user_input_raw = AskAnything("Are you aware that you selected Yes?")
-    PauseGame()
-  ElseIf (Not user_choice)
-    user_choice = AskDirection(1, 1, 1, 1)
-    PrintN(Str(user_choice))
-    PauseGame()
-  EndIf
-
-EndIf
-CloseConsole()
 ; IDE Options = PureBasic 6.00 LTS (Linux - x64)
 ; ExecutableFormat = Console
-; CursorPosition = 110
-; FirstLine = 92
 ; Folding = -
 ; EnableXP
 ; DPIAware
