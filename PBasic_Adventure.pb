@@ -45,7 +45,9 @@ Procedure GameLoop()
     PrintN("Anyway, maybe we should read the note. Could be the coordinates to buried treasure, " +
            "or perhaps something else equally likely.")
     
+    Shared user_choice
     user_choice = AskYesNo()
+    
     If (user_choice)
       If (AskAnything("Are you aware that you selected Yes?") = "test")
         Debug("User responded with 'test'")
@@ -126,18 +128,19 @@ Procedure.l AskDirection(north, south, east, west)
   Print(#INDENT_INPUT)
   user_input_raw = LCase(Trim(Input()))
   
-  If (user_input_raw = "north" Or user_input_raw = "n")
+  Select user_input_raw 
+  Case "north", "n"
     ProcedureReturn #North
-  ElseIf (user_input_raw = "south" Or user_input_raw = "s")
+  Case "south", "s"
     ProcedureReturn #South
-  ElseIf (user_input_raw = "east" Or user_input_raw = "e")
+  Case "east", "e"
     ProcedureReturn #East
-  ElseIf (user_input_raw = "west" Or user_input_raw = "w")
+  Case "west", "w"
     ProcedureReturn #West
-  Else
-    PrintN("Bad or invalid response :(")
+  Default
+    PrintN("I didn't understand that.")
     AskDirection(north, south, east, west)
-  EndIf
+  EndSelect
 EndProcedure
 
 
@@ -150,8 +153,12 @@ Procedure.s AskAnything(user_question.s)
   ProcedureReturn user_reply
 EndProcedure
 
+GameLoop()
+
 ; IDE Options = PureBasic 6.00 LTS (Linux - x64)
 ; ExecutableFormat = Console
+; CursorPosition = 50
+; FirstLine = 122
 ; Folding = -
 ; EnableXP
 ; DPIAware
