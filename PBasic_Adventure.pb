@@ -8,12 +8,6 @@ Enumeration
   #West = 270
 EndEnumeration
 
-; User's unmodified response or command will end up here, prior to us evaluating it
-Define.s user_input_raw = #Empty$
-
-; User's response processed into numerical form (for AskYesNo() or AskDirection())
-Define.l user_choice = 0;
-
 ; Some output of the program will require consistent indentation. Ex: Space(#INDENT_LENGTH)
 #INDENT_LENGTH = 5
 
@@ -45,17 +39,15 @@ Procedure GameLoop()
     PrintN("Anyway, maybe we should read the note. Could be the coordinates to buried treasure, " +
            "or perhaps something else equally likely.")
     
-    Shared user_choice
-    user_choice = AskYesNo()
-    
-    If (user_choice)
-      If (AskAnything("Are you aware that you selected Yes?") = "test")
-        Debug("User responded with 'test'")
-      EndIf
+    ; AskYesNo() will come back as #True or #False
+    If (AskYesNo())
+      PrintN("You decided to read the note. Let's see...")
+      ; to-do: note
       PauseGame()
-    ElseIf (Not user_choice)
-      user_choice = AskDirection(1, 1, 1, 1)
-      PrintN(Str(user_choice))
+    Else
+      PrintN("You decide not to read the note.")
+      PrintN("You're capable of going north, south, east, or west from here.")
+      PrintN(Str(AskDirection(1, 1, 1, 1)))
       PauseGame()
     EndIf
     
@@ -76,26 +68,21 @@ Procedure.l AskYesNo()
   PrintN("Type 'yes' or 'no' to make a decision, when ready.")
   Print(#INDENT_INPUT)
   
-  ; use user_input_raw variable outside its original scope
-  Shared user_input_raw
-  user_input_raw = LCase(Trim(Input()))
-  
-  If user_input_raw = "yes" Or user_input_raw = "y"
-    ProcedureReturn #True
-  ElseIf user_input_raw = "no" Or user_input_raw = "n"
-    ProcedureReturn #False
-  Else
-    AskYesNo()
-  EndIf
+  Select Trim(LCase(Input()))
+    Case "yes", "y"
+      ProcedureReturn #True
+    Case "no", "n"
+      ProcedureReturn #False
+    Default:
+      PrintN("I didn't understand that.")
+      AskYesNo()
+  EndSelect
 EndProcedure
 
 
 Procedure.l AskDirection(north, south, east, west)
   PrintN("")
   Print("Which way would you like to go? Options: ")
-  
-  ; Use user_input_raw defined in a different scope, without making it global
-  Shared user_input_raw
   
   ; Create a list of the allowed directions passed to the procedure as params
   NewList Directions.s()
@@ -126,39 +113,39 @@ Procedure.l AskDirection(north, south, east, west)
   
   PrintN("")
   Print(#INDENT_INPUT)
-  user_input_raw = LCase(Trim(Input()))
   
-  Select user_input_raw 
-  Case "north", "n"
-    ProcedureReturn #North
-  Case "south", "s"
-    ProcedureReturn #South
-  Case "east", "e"
-    ProcedureReturn #East
-  Case "west", "w"
-    ProcedureReturn #West
-  Default
-    PrintN("I didn't understand that.")
-    AskDirection(north, south, east, west)
+  ; User types a direction. If valid, return it to GameLoop(), otherwise ask user again
+  Select LCase(Trim(Input())) 
+    Case "north", "n"
+      ProcedureReturn #North
+    Case "south", "s"
+      ProcedureReturn #South
+    Case "east", "e"
+      ProcedureReturn #East
+    Case "west", "w"
+      ProcedureReturn #West
+    Default
+      PrintN("I didn't understand that.")
+      AskDirection(north, south, east, west)
   EndSelect
 EndProcedure
 
 
-; used for freeform / custom questions
+; To be used for freeform / custom questions
 Procedure.s AskAnything(user_question.s)
   PrintN("")
   PrintN(user_question)
   Print(#INDENT_INPUT)
-  Define.s user_reply = Input()
-  ProcedureReturn user_reply
+  ProcedureReturn Trim(LCase(Input()))
 EndProcedure
 
-GameLoop()
 
+; Call the main loop, defined 
+GameLoop()
 ; IDE Options = PureBasic 6.00 LTS (Linux - x64)
 ; ExecutableFormat = Console
-; CursorPosition = 50
-; FirstLine = 122
+; CursorPosition = 70
+; FirstLine = 117
 ; Folding = -
 ; EnableXP
 ; DPIAware
