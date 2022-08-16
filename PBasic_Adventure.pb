@@ -18,6 +18,9 @@ Declare PauseGame()
 Declare.l AskYesNo()
 Declare.s AskAnything(user_question.s)
 Declare.l AskDirection(north, south, east, west)
+Declare PathOne()
+
+Global.s preferred_name = #Empty$
 
 Procedure GameLoop()
   If OpenConsole()
@@ -29,27 +32,48 @@ Procedure GameLoop()
     PrintN(Space(#INDENT_LENGTH) + welcome_message)
     PrintN(Space(#INDENT_LENGTH) + dividing_line)
     
-    PrintN(Space(#INDENT_LENGTH) + "Nice to see you, " + UserName() + ".")
+    PauseGame()
+    
+    PrintN("Nice to see you, " + UserName() + ". " +
+           "Do you prefer another name? If yes, type the other name now. Otherwise, press Enter.")
+    Define.s user_says = Trim(LCase(Input()))
+    If user_says <> #Empty$
+      preferred_name = user_says
+    Else 
+      preferred_name = UserName()
+    EndIf
+    PrintN("Understood, " + preferred_name + ".")
+    
     PauseGame()
     
     PrintN("You're walking in the forest, on a pleasant sunny day. You come across a fallen note " +
            "with cursive writing. Who writes in cursive anymore?")
-    PauseGame()
     
     PrintN("Anyway, maybe we should read the note. Could be the coordinates to buried treasure, " +
            "or perhaps something else equally likely.")
     
     ; AskYesNo() will come back as #True or #False
     If (AskYesNo())
-      PrintN("You decided to read the note. Let's see...")
-      ; to-do: note
-      PauseGame()
+      PrintN("You decided to read the note. The note reads, ")
+      PrintN("'I went West. I'm hoping this was the right choice, but we'll see.'")
     Else
       PrintN("You decide not to read the note.")
-      PrintN("You're capable of going north, south, east, or west from here.")
-      PrintN(Str(AskDirection(1, 1, 1, 1)))
-      PauseGame()
     EndIf
+    PauseGame()
+    
+    ; Path One
+    PrintN("You're capable of going north, east, or west from here.")
+
+    Select AskDirection(#True, #False, #True, #True)
+      Case #North:
+        Debug #North
+      Case #East
+        Debug #East
+      Case #West
+        Debug #West
+    EndSelect
+    
+    PauseGame()
     
     CloseConsole()
   EndIf
@@ -58,7 +82,7 @@ EndProcedure
 
 Procedure PauseGame()
   PrintN("")
-  PrintN(Space(#INDENT_LENGTH) + "[Press Enter/Return when ready.]")
+  PrintN("Press Enter/Return when ready.")
   Input()
 EndProcedure
 
@@ -144,8 +168,7 @@ EndProcedure
 GameLoop()
 ; IDE Options = PureBasic 6.00 LTS (Linux - x64)
 ; ExecutableFormat = Console
-; CursorPosition = 70
-; FirstLine = 117
+; CursorPosition = 84
 ; Folding = -
 ; EnableXP
 ; DPIAware
