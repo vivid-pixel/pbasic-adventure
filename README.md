@@ -1,2 +1,2 @@
-# PBasic_Adventure
-The beginnings of a text-based adventure using PureBasic.
+# PBasic Adventure!
+The start of a text-based adventure using PureBasic.
